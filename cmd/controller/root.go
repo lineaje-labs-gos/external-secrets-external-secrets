@@ -58,6 +58,9 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
+// Version is the operator's version, injected at build time via -ldflags (see the Makefile's build-% target).
+var Version = "dev"
+
 var (
 	scheme                                = runtime.NewScheme()
 	setupLog                              = ctrl.Log.WithName("setup")
@@ -123,9 +126,10 @@ func init() {
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "external-secrets",
+	Use: "external-secrets",
 	Short: "operator that reconciles ExternalSecrets and SecretStores",
-	Long:  `For more information visit https://external-secrets.io`,
+	Long: `For more information visit https://external-secrets.io`,
+	Version: Version,
 	Run: func(cmd *cobra.Command, _ []string) {
 		setupLogger()
 

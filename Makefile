@@ -47,6 +47,11 @@ endif
 TAG_SUFFIX ?=
 export IMAGE_TAG ?= $(VERSION)$(TAG_SUFFIX)
 
+# raw tag/describe output for embedding into the binary via -ldflags, without the
+# dash->dot mangling above (that's specifically for IMAGE_TAG / package versions).
+GIT_TAG := $(shell git describe --dirty --always --tags --exclude 'helm*')
+LDFLAGS := -X github.com/external-secrets/external-secrets/cmd/controller.Version=$(GIT_TAG)
+
 # ====================================================================================
 # Colors
 
@@ -143,7 +148,7 @@ PROVIDER ?= all_providers
 build-%: generate ## Build binary for the specified arch
 	@$(INFO) go build $*
 	$(BUILD_ARGS) GOOS=linux GOARCH=$* \
-		go build -tags $(PROVIDER) -o '$(OUTPUT_DIR)/external-secrets-linux-$*' main.go
+		go build -tags $(PROVIDER) -ldflags "$(LDFLAGS)" -o '$(OUTPUT_DIR)/external-secrets-linux-$*' main.go
 	@$(OK) go build $*
 
 lint: golangci-lint ## Run golangci-lint (set LINT_TARGET to run on specific module, LINT_JOBS for parallel jobs)
